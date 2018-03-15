@@ -1,3 +1,3 @@
 # PJS
 
-**Pracownia języków skryptowych
+## Pracownia języków skryptowych
