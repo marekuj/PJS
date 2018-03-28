@@ -68,6 +68,7 @@ function draw_board {
 
 function get_input {
     check_input=1
+    idx=10
     while [ ${check_input} = 1 ]
     do
         read  -s -n1 input
@@ -83,7 +84,7 @@ function get_input {
             c) idx=8;;
         esac
 
-        if [ ${board[${idx}]} = 0 ]
+        if [ ${idx} != 10 ] && [ ${board[${idx}]} = 0 ]
         then
             if [ ${player} = 1 ]
             then
