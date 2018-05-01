@@ -1,13 +1,13 @@
 #!/bin/bash
 
-blue="\033[34m"
-green="\033[32m"
-yellow="\033[33m"
-normal="\033[0m"
+blue="\033[1;34m"
+green="\033[1;32m"
+yellow="\033[1;33m"
+normal="\033[1;0m"
 
 player_one="${blue}Player One${normal}"
 player_two="${green}Player Two${normal}"
-border_line="${yellow}*****************************************${normal}"
+border_line="${yellow}***************${normal}"
 border_left="${yellow}* ${normal}"
 border_right="${yellow} *${normal}"
 
@@ -22,47 +22,46 @@ function draw_clear {
 
 function draw_info {
     echo -e "${border_line}"
-    echo -e "${border_left}Tic-Tac-Toe"
-    echo -e "${border_left}"
-    echo -e "${border_left}Keys:"
-    echo -e "${border_left}    Q W E"
-    echo -e "${border_left}    A S D"
-    echo -e "${border_left}    Z X C"
+    echo -e "${border_left}Tic-Tac-Toe${border_right}"
+    echo -e "${border_left}           ${border_right}"
+    echo -e "${border_left}Keys:      ${border_right}"
+    echo -e "${border_left}   Q W E   ${border_right}"
+    echo -e "${border_left}   A S D   ${border_right}"
+    echo -e "${border_left}   Z X C   ${border_right}"
     echo -e "${border_line}"
 }
 
 function draw_header {
     if  [ ${player} = 1 ]
     then
-        header="${player_one}: "
+        header="${player_one} "
     else
-        header="${player_two}: "
+        header="${player_two} "
     fi
-    echo -e "${border_left}${header}"
+    echo -e "${border_left}${header}${border_right}"
 }
 
 function draw_board {
-    echo -e  "${border_left}"
+    echo -e  "${border_left}           ${border_right}"
     row=("0 1 2" "3 4 5" "6 7 8")
-    lines=("" "" "")
     for i in 0 1 2
     do
-        lines[i]="${border_left}    "
+        line="${border_left}   "
         for idx in ${row[i]}
         do
             if [ ${board[${idx}]} = 0 ]
             then
-                lines[i]="${lines[i]}. "
+                line="${line}. "
             elif [ ${board[${idx}]} = 1 ]
             then
-                lines[i]="${lines[i]}${blue}X ${normal}"
+                line="${line}${blue}X ${normal}"
             else
-                lines[i]="${lines[i]}${green}O ${normal}"
+                line="${line}${green}O ${normal}"
             fi
         done
-        echo -e "${lines[i]}"
+        echo -e "${line}  ${border_right}"
     done
-    echo -e  "${border_left}"
+    echo -e  "${border_left}           ${border_right}"
     echo -e  "${border_line}"
 }
 
@@ -131,14 +130,11 @@ function check {
     if [ ${play} != 0 ]
     then
         draw=1
-        echo    ${draw}
         for idx in ${board[@]}
         do
-            echo    ${idx}
             if [ ${idx} = 0 ]
             then
                 draw=0
-                echo "asd ${draw}"
             fi
         done
 
