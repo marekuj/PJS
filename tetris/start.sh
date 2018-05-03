@@ -5,19 +5,23 @@ green="\033[1;32m"
 yellow="\033[1;33m"
 normal="\033[1;0m"
 
-border_line="${yellow}************${normal}"
+border_line="${yellow}************${normal}    "
 border_left="${yellow}*${normal}"
-border_right="${yellow}*${normal}"
+border_right="${yellow}*${normal}    "
 
 current_x=0
 current_y=4
-current_t=1
+next_t=1
+points=0
 
 declare -A board
 board_x=20
 board_y=10
 play=1
 
+function random {
+    shuf -i 1-5 -n 1
+}
 
 function make_brick {
     if [ $1 = 1 ]
@@ -37,9 +41,16 @@ function make_brick {
                "1")
     elif [ $1 = 4 ]
     then
+        brick=("1 0" 
+               "1 0"
+               "1 1")
+    elif [ $1 = 5 ]
+    then
         brick=("1 1 0" 
                "0 1 1")
     fi
+    
+    next_t=$(random)  
 }
 
 function update_brick {
@@ -149,11 +160,28 @@ function move {
     done
 }
 
-function get_input {
-    read  -s -n1 -t1 input
-    # read  -s -n1 input 
+function next_step {
+    update_brick 1
+    update_rows
+    
+    make_brick ${next_t}
+    current_x=0
+    current_y=4
+    move    
+}
 
-    if [ ${input} = "a" ]
+function get_input {
+    read -s -n1 -t1 input
+
+    if [ -z ${input} ] || [ ${input} = "s" ]
+    then
+        if [ $(check_down) = 1 ]
+        then
+           move_down  
+        else
+            next_step
+        fi
+    elif [ ${input} = "a" ]
     then
         if [ $(check_left) = 1 ]
         then
@@ -171,23 +199,15 @@ function get_input {
         then
            move_down  
         fi
-    elif [ ${input} = "s" ]
+    # elif [ ${input} = "s" ]
+    # then
+    #     if [ $(check_down) = 1 ]
+    #     then
+    #        move_down  
+    #     fi
+    elif [ ${input} = $'\x1b' ]
     then
-        if [ $(check_down) = 1 ]
-        then
-           move_down  
-        fi
-    else
-        if [ $(check_down) = 1 ]
-        then
-           move_down  
-        else
-            update_brick 1
-            make_brick 2
-            current_x=0
-            current_y=4
-            move
-        fi
+        play=0
     fi    
 
     # while [ ${check_input} = 1 ]
@@ -288,7 +308,8 @@ function get_input {
 
 
 function draw_clear {
-    clear
+    echo -e '\033[;H'
+    # echo -e "-----------------------------"
 }
 
 function draw_info {
@@ -299,6 +320,35 @@ function draw_info {
 
 function draw_next {
     echo -e "${border_left}  Next:   ${border_right}"
+    echo -e "${border_left}          ${border_right}"
+    case "${next_t}" in
+    1)
+        echo -e "${border_left}${green}    XX    ${normal}${border_right}"
+        echo -e "${border_left}${green}    XX    ${normal}${border_right}"
+        echo -e "${border_left}          ${border_right}"
+        ;;
+    2)
+        echo -e "${border_left}${green}    XXX   ${normal}${border_right}"
+        echo -e "${border_left}${green}     X    ${normal}${border_right}"
+        echo -e "${border_left}          ${border_right}"
+        ;;
+    3)
+        echo -e "${border_left}          ${border_right}"
+        echo -e "${border_left}${green}   XXXX   ${normal}${border_right}"
+        echo -e "${border_left}          ${border_right}"
+        ;;
+    4)
+        echo -e "${border_left}${green}    X     ${normal}${border_right}"
+        echo -e "${border_left}${green}    X     ${normal}${border_right}"
+        echo -e "${border_left}${green}    XX    ${normal}${border_right}"
+        ;;
+    5)
+        echo -e "${border_left}${green}   XX     ${normal}${border_right}"
+        echo -e "${border_left}${green}    XX    ${normal}${border_right}"
+        echo -e "${border_left}          ${border_right}"
+        ;;
+    esac
+    echo -e "${border_left}          ${border_right}"
     echo -e "${border_line}"
 }
 
@@ -324,7 +374,25 @@ function draw_board {
     echo -e "${border_line}"    
 }
 
+function draw_points {
+    echo -e "${border_left} Points:  ${border_right}"
+    printf "${border_left}${green} %8d ${normal}${border_right}\n" ${points}
+    echo -e "${border_line}"
+}
+
+function start {
+    clear
+    echo -ne "\033[?25l"
+}
+
+function end {
+    clear
+    echo -ne "\033[?25h"    
+}
+
 function main {
+    start
+
     for x in {0..19}
     do
         for y in {0..9}
@@ -333,14 +401,15 @@ function main {
         done
     done
 
+    next_t=1
+
     # board[10,6]=1
     # board[10,4]=2
     # board[11,4]=2
     # board[10,5]=2
     # board[11,5]=2
 
-
-    make_brick ${current_t}
+    make_brick ${next_t}
     move
 
     # draw_clear
@@ -363,9 +432,13 @@ function main {
         draw_info
         draw_next
         draw_board
+        draw_points
+        
         get_input
         # check
     done    
+    
+    end
 }
 
 main
