@@ -15,12 +15,16 @@ next_t=1
 points=0
 
 declare -A board
-board_x=20
-board_y=10
+board_x=19  # 0..19
+board_y=9   # 0..9
 play=1
 
 function random {
     shuf -i 1-5 -n 1
+}
+
+function range {
+    seq 0 $1
 }
 
 function make_brick {
@@ -54,9 +58,9 @@ function make_brick {
 }
 
 function update_brick {
-    for x in {0..19}
+    for x in $(range ${board_x})
     do
-        for y in {0..9}
+        for y in $(range ${board_y})
         do
             if [ ${board[${x},${y}]} = 2 ]
             then
@@ -66,11 +70,44 @@ function update_brick {
     done
 }
 
+
+function update_rows {
+    for x in $(range ${board_x})
+    do
+        sum=0
+        for y in $(range ${board_y})
+        do
+            if [ ${board[${x},${y}]} = 1 ]
+            then
+                sum=$((sum + 1))
+            fi
+        done
+        # echo "SUM:  ${sum}"
+        if [ ${sum} = 10 ]  # todo
+        then
+            delete_row ${x}
+            points=$((points + 10))
+        fi
+    done
+}
+
+function delete_row {
+    for i in $(range $(($1 - 1)))
+    do
+        nx=$((18 - i))
+        x=$((19 - i)) 
+        for y in $(range ${board_y})
+        do
+            board[${x},${y}]=${board[${nx},${y}]}
+        done
+    done
+}
+
 function check_left {
     ret=1
-    for x in {0..19}
+    for x in $(range ${board_x})
     do
-        for y in {0..9}
+        for y in $(range ${board_y})
         do
             if [ ${board[${x},${y}]} = 2 ]
             then
@@ -88,9 +125,9 @@ function check_left {
 
 function check_right {
     ret=1
-    for x in {0..19}
+    for x in $(range ${board_x})
     do
-        for y in {0..9}
+        for y in $(range ${board_y})
         do
             if [ ${board[${x},${y}]} = 2 ]
             then
@@ -108,9 +145,9 @@ function check_right {
 
 function check_down {
     ret=1
-    for y in {0..9}
+    for y in $(range ${board_y})
     do
-        for x in {0..19}
+        for x in $(range ${board_x})
         do
             if [ ${board[${x},${y}]} = 2 ]
             then
@@ -160,16 +197,6 @@ function move {
     done
 }
 
-function next_step {
-    update_brick 1
-    update_rows
-    
-    make_brick ${next_t}
-    current_x=0
-    current_y=4
-    move    
-}
-
 function get_input {
     read -s -n1 -t1 input
 
@@ -179,7 +206,13 @@ function get_input {
         then
            move_down  
         else
-            next_step
+            update_brick 1
+            update_rows
+            
+            make_brick ${next_t}
+            current_x=0
+            current_y=4
+            move    
         fi
     elif [ ${input} = "a" ]
     then
@@ -308,8 +341,8 @@ function get_input {
 
 
 function draw_clear {
+    echo -e "       "
     echo -e '\033[;H'
-    # echo -e "-----------------------------"
 }
 
 function draw_info {
@@ -353,10 +386,10 @@ function draw_next {
 }
 
 function draw_board {
-    for x in {0..19}
+    for x in $(range ${board_x})
     do
         line="${border_left}"
-        for y in {0..9}
+        for y in $(range ${board_y})
         do
             if [ ${board[${x},${y}]} = 1 ]
             then
@@ -386,6 +419,8 @@ function start {
 }
 
 function end {
+    echo "Press any key to exit..."
+    read -s -n1 input
     clear
     echo -ne "\033[?25h"    
 }
@@ -393,9 +428,9 @@ function end {
 function main {
     start
 
-    for x in {0..19}
+    for x in $(range ${board_x})
     do
-        for y in {0..9}
+        for y in $(range ${board_y})
         do
             board[${x},${y}]=0
         done
@@ -426,6 +461,15 @@ function main {
     # result=$(check_down)
     # echo "check_down: ${result}"
 
+    board[19,0]=1
+    board[19,1]=1
+    board[19,2]=1
+    board[19,3]=1
+    board[19,6]=1
+    board[19,7]=1
+    board[19,8]=1
+    board[19,9]=1
+
     while [ ${play} = 1 ]
     do
         draw_clear
@@ -434,6 +478,7 @@ function main {
         draw_board
         draw_points
         
+
         get_input
         # check
     done    
