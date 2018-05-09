@@ -1,0 +1,12 @@
+Scrypt do bildowania codu na Redhat 7 (polecenie rpmbuild))
+
+Kopiuje ¿ród³a z podanego katalogu do odpowiedniego miejsca 
+pozwala wybraæ który porjekt kompilujemy
+kppliluje 
+towrzy paczki rpm 
+kopuije rpm do podanego katalogu 
+
+Wywo³anie:
+
+python2.7 ./code/scripts/rpm_builder.py -d '/tmp/alior_zpe_abhproxy_cpp/code' --rpm_store_dir '/tmp/alior_zpe_abhproxy_cpp/rpm'
+
