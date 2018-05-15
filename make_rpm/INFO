@@ -1,0 +1,17 @@
+Skrypt do automatyzacji procesu kompilacji kodu i budowy paczek instalacyjnych(RPM)
+
+Wymagania:
+1 python2.7 / python3
+2 Red Hat 7 / Fedora 
+3 rpmbuild 
+
+
+Jak działa:
+1 Skrypt odnajduje w podanej lokalizacji wszystkie pliki SPEC
+2 Pozwala wybrać które projekty maja zostać skompilowane(domyślnie wszystkie) 
+3 Tworzy archiwa i kopiuje dane(kod) oraz SPEC do odpowiednich folderów wymaganych przez rpmbuild
+4 Wywołuje polecenie rpmbuild
+5 Kopiuje pliki wynikowe(RPM) do zadanego folderu 
+
+Przykładowe wywołanie: 
+python2.7 ./make_rpm.py -d './example_project' --rpm_store_dir './rpm' --rpmbuild_dir '~/rpmbuild'
