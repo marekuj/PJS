@@ -1,9 +1,9 @@
 Skrypt do automatyzacji procesu kompilacji kodu i budowy paczek instalacyjnych(RPM)
 
 Wymagania:
-1 python2.7 / python3
-2 Red Hat 7 / Fedora 
-3 rpmbuild 
+1 python2.7
+2 Red Hat 7 / Fedora
+3 rpmbuild
 
 
 Jak działa:
