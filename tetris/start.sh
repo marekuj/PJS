@@ -13,7 +13,7 @@ current_x=0
 current_y=4
 current_r=0
 current_t=0
-next_t=0
+next_t=1
 points=0
 
 declare -A board
@@ -30,8 +30,8 @@ function range {
 }
 
 function make_brick {
-    if [ $1 = 0 ]
-    then
+    if [ $1 = 2 ]
+    then    
         brick=("1 1" 
                "1 1")
     elif [ $1 = 1 ]
@@ -141,7 +141,7 @@ function rot_brick {
     current_r=$((current_r + 1))
     
     make_brick ${current_t} ${current_r}
-
+        
     # if [ ${current_r} ] 
     # declare -A test    
     # #x ${#brick[*]}
@@ -221,6 +221,8 @@ function rot_brick {
     
     
     update_brick 1  
+
+    move
 }
 
 function update_brick {
@@ -330,18 +332,37 @@ function check_down {
 }
 
 function move_left {
-    current_y=$((current_y - 1))
-    move
+    if [ $(check_left) = 1 ]
+    then
+        current_y=$((current_y - 1))
+        move
+    fi    
 }
 
 function move_right {
-    current_y=$((current_y + 1))
-    move
+    if [ $(check_right) = 1 ]
+    then
+        current_y=$((current_y + 1))
+        move
+    fi    
 }
 
 function move_down {
-    current_x=$((current_x + 1))
-    move    
+    if [ $(check_down) = 1 ]
+    then
+        current_x=$((current_x + 1))
+        move    
+    else
+        update_brick 1
+        update_rows            
+        current_r=0            
+        current_t=${next_t}
+        next_t=$(random)
+        make_brick ${current_t} ${current_r}
+        current_x=0
+        current_y=4
+        move    
+    fi
 }
 
 function move {
@@ -367,44 +388,25 @@ function move {
     done
 }
 
-function get_input {
-    read -s -n 1 -t 1 input
+function make_action {
+    if [ -z $1 ]; then return
+    elif [ $1 = "dwn" ]; then move_down  
+    elif [ $1 = "lft" ]; then move_left  
+    elif [ $1 = "rgt" ]; then move_right  
+    elif [ $1 = "rot" ]; then rot_brick
+    elif [ $1 = "ext" ]; then play=0; fi        
+}
 
-    if [ -z ${input} ] || [ ${input} = "s" ] || [ ${input} = "S" ]
-    then
-        if [ $(check_down) = 1 ]
-        then
-           move_down  
-        else
-            update_brick 1
-            update_rows            
-            current_r=0            
-            current_t=${next_t}
-            next_t=$(random)
-            make_brick ${current_t} ${current_r}
-            current_x=0
-            current_y=4
-            move    
-        fi
-    elif [ ${input} = "a" ] ||  [ ${input} = "A" ]
-    then
-        if [ $(check_left) = 1 ]
-        then
-           move_left  
-        fi
-    elif [ ${input} = "d" ] || [ ${input} = "D" ]
-    then
-        if [ $(check_right) = 1 ]
-        then
-           move_right  
-        fi
-    elif [ ${input} = "w" ] || [ ${input} = "W" ]
-    then
-        rot_brick
-    elif [ ${input} = $'\x1b' ]
-    then
-        play=0
-    fi        
+function start {
+    clear
+    echo -ne "\033[?25l"
+}
+
+function end {
+    echo "Press any key to exit..."
+    read -s -n 1 input
+    clear
+    echo -ne "\033[?25h"    
 }
 
 function draw_clear {
@@ -493,16 +495,63 @@ function draw_points {
     echo -e "${border_line}"
 }
 
-function start {
-    clear
-    echo -ne "\033[?25l"
+
+function draw {
+    while [ ${play} = 1 ]
+    do
+        read -s -n 4 action 
+        
+        make_action ${action}
+        
+        draw_clear
+        draw_info
+        draw_next
+        draw_board
+        draw_points
+    done
 }
 
-function end {
-    echo "Press any key to exit..."
-    read -s -n 1 input
-    clear
-    echo -ne "\033[?25h"    
+function update_keys() {
+    while [ ${play} = 1 ]
+    do
+        read -s -n 1 input
+
+        if [ -z ${input} ]; then return
+        elif [ ${input} = "s" ] || [ ${input} = "S" ]; then echo "dwn"  
+        elif [ ${input} = "a" ] || [ ${input} = "A" ]; then echo "lft"  
+        elif [ ${input} = "d" ] || [ ${input} = "D" ]; then echo "rgt"  
+        elif [ ${input} = "w" ] || [ ${input} = "W" ]; then echo "rot"
+        elif [ ${input} = $'\x1b' ]; then echo "ext"; fi        
+    
+        # echo "adad drop" 
+
+        # draw_clear
+        # draw_info
+        # draw_next
+        # draw_board
+        # draw_points
+
+        # get_input
+        # check
+        # sleep 2
+
+        # echo "A"
+        # move_down
+        # draw_clear
+        # draw_info
+        # draw_next
+        # draw_board
+        # draw_points
+        
+    done
+}
+
+function update_round() {
+    while [ ${play} = 1 ]
+    do
+        sleep 1
+        echo "dwn"
+    done    
 }
 
 function main {
@@ -563,18 +612,21 @@ function main {
     board[18,8]=1
     board[18,9]=1
 
-    while [ ${play} = 1 ]
-    do
-        draw_clear
-        draw_info
-        draw_next
-        draw_board
-        draw_points
+    ( update_round & update_keys ) | ( draw )
+    # & update_rounds
+
+    # while [ ${play} = 1 ]
+    # do
+    #     draw_clear
+    #     draw_info
+    #     draw_next
+    #     draw_board
+    #     draw_points
         
 
-        get_input
-        # check
-    done    
+    #     get_input
+    #     # check
+    # done    
     
     end
 }
