@@ -25,31 +25,7 @@ function init {
 
     points=0
     play=1
-
-    board[5,5]=1
-
-
-    # begin test
-    board[19,0]=1
-    board[19,1]=1
-    board[19,2]=1
-    board[19,3]=1
-    # board[19,4]=1
-    board[19,6]=1
-    board[19,7]=1
-    board[19,8]=1
-    board[19,9]=1
-
-    board[18,0]=1
-    board[18,1]=1
-    board[18,2]=1
-    board[18,3]=1
-    # board[18,6]=1
-    board[18,7]=1
-    board[18,8]=1
-    board[18,9]=1
-    # end test
-
+    
     current_r=0
     current_t=$(random)
     next_t=$(random)
@@ -83,7 +59,7 @@ function offset_y {
 
 function make_brick {
     if   [ $1 = 0 ]; then    
-        local brick="0000011001100000"
+        brick="0000011001100000"
     elif [ $1 = 1 ]; then
         r=$(($2 % 4))
         if   [ ${r} = 0 ]; then brick="0000111001000000"
@@ -376,8 +352,6 @@ function draw_next {
     echo -e "${border_left}          ${border_right}${key5}"
     echo -e "${border_left}          ${border_right}${key6}"
     echo -e "${border_line}${border_line}"
-    # echo -e "${yellow}*****  *****${normal}    ${border_line}"
-
 }
 
 function draw_board {
