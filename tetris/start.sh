@@ -11,9 +11,10 @@ border_right="${yellow}*${normal}    "
 
 board_x=19  # 0..19
 board_y=9   # 0..9
+brick_x=3   # 0..3
+brick_y=3   # 0..3
 
 declare -A board
-
 
 function init {
     for x in $(range ${board_x}); do
@@ -46,15 +47,14 @@ function init {
     board[18,9]=1
 
 
-    next_t=1
+    next_t=0
     # end test
     current_r=0
     current_t=${next_t}
     next_t=$(random)
-    make_brick ${current_t} ${current_r}
+    current_brick=$(make_brick ${current_t} ${current_r})
     current_x=$(offset_x ${current_t})
     current_y=$(offset_y ${current_t})
-    echo "$current_x"
     move
 }
 
@@ -67,8 +67,9 @@ function range {
 }
 
 function offset_x {
-    ret=0;
-    if [ $1 = 1 ]; then ret=-1
+    local ret=0;
+    if [ $1 = 0 ]; then ret=-1
+    elif [ $1 = 1 ]; then ret=-1
     elif [ $1 = 2 ]; then ret=-1
     elif [ $1 = 3 ]; then ret=-1
     elif [ $1 = 5 ]; then ret=-1
@@ -77,192 +78,52 @@ function offset_x {
 }
 
 function offset_y {
-    ret=4;
-    if [ $1 = 6 ]; then ret=3; fi
+    local ret=4;
+    if [ $1 = 0 ]; then ret=3;
+    elif [ $1 = 6 ]; then ret=3; fi
     echo "${ret}"
 }
 
 function make_brick {
     if [ $1 = 0 ]; then    
-        brick=("1 1" 
-               "1 1")
+        local brick="0000011001100000"
     elif [ $1 = 1 ]; then
         r=$(($2 % 4))
-        if [ ${r} = 0 ]
-        then brick=("0 0 0"
-                    "1 1 1" 
-                    "0 1 0")
-        elif [ ${r} = 1 ]
-        then brick=("0 1 0" 
-                    "1 1 0" 
-                    "0 1 0")
-        elif [ ${r} = 2 ] 
-        then brick=("0 1 0" 
-                    "1 1 1"
-                    "0 0 0")
-        elif [ ${r} = 3 ] 
-        then brick=("0 1 0" 
-                    "0 1 1" 
-                    "0 1 0")
-        fi        
+        if   [ ${r} = 0 ]; then brick="0000111001000000"
+        elif [ ${r} = 1 ]; then brick="0100110001000000"
+        elif [ ${r} = 2 ]; then brick="0100111000000000"
+        elif [ ${r} = 3 ]; then brick="0100011001000000"; fi
     elif [ $1 = 2 ]; then
         r=$(($2 % 4))
-        if [ ${r} = 0 ]
-        then brick=("0 0 0"
-                    "1 1 1" 
-                    "1 0 0")
-        elif [ ${r} = 1 ]
-        then brick=("1 1 0" 
-                    "0 1 0" 
-                    "0 1 0")
-        elif [ ${r} = 2 ] 
-        then brick=("0 0 1" 
-                    "1 1 1"
-                    "0 0 0")
-        elif [ ${r} = 3 ] 
-        then brick=("0 1 0" 
-                    "0 1 0" 
-                    "0 1 1")
-        fi        
+        if   [ ${r} = 0 ]; then brick="0000111010000000"
+        elif [ ${r} = 1 ]; then brick="1100010001000000"
+        elif [ ${r} = 2 ]; then brick="0010111000000000"
+        elif [ ${r} = 3 ]; then brick="0100010001100000"; fi
     elif [ $1 = 3 ]; then
         r=$(($2 % 4))
-        if [ ${r} = 0 ]
-        then brick=("0 0 0"
-                    "1 1 1" 
-                    "0 0 1")
-        elif [ ${r} = 1 ]
-        then brick=("0 1 0" 
-                    "0 1 0" 
-                    "1 1 0")
-        elif [ ${r} = 2 ] 
-        then brick=("1 0 0" 
-                    "1 1 1"
-                    "0 0 0")
-        elif [ ${r} = 3 ] 
-        then brick=("0 1 1" 
-                    "0 1 0" 
-                    "0 1 0")
-        fi        
+        if   [ ${r} = 0 ]; then brick="0000111000100000"
+        elif [ ${r} = 1 ]; then brick="0100010011000000"
+        elif [ ${r} = 2 ]; then brick="1000111000000000"
+        elif [ ${r} = 3 ]; then brick="0110010001000000"; fi
     elif [ $1 = 4 ]; then
         r=$(($2 % 2))
-        if [ ${r} = 0 ]
-        then brick=("1 1 0" 
-                    "0 1 1")
-        elif [ ${r} = 1 ]
-        then brick=("0 0 1" 
-                    "0 1 1" 
-                    "0 1 0")
-        fi        
+        if   [ ${r} = 0 ]; then brick="1100011000000000"
+        elif [ ${r} = 1 ]; then brick="0010011001000000"; fi        
     elif [ $1 = 5 ]; then
         r=$(($2 % 2))
-        if [ ${r} = 0 ]
-        then brick=("0 0 0"
-                    "0 1 1" 
-                    "1 1 0")
-        elif [ ${r} = 1 ]
-        then brick=("0 1 0" 
-                    "0 1 1" 
-                    "0 0 1")
-        fi        
+        if   [ ${r} = 0 ]; then brick="0000011011000000"
+        elif [ ${r} = 1 ]; then brick="0100011000100000"; fi        
     elif [ $1 = 6 ]; then
         r=$(($2 % 2))
-        if [ ${r} = 0 ]
-        then brick=("0 0 0 0"
-                    "0 0 0 0"
-                    "1 1 1 1")
-        elif [ ${r} = 1 ]
-        then brick=("0 0 1" "0 0 1" "0 0 1" "0 0 1")
-        fi        
+        if   [ ${r} = 0 ]; then brick="0000000011110000"
+        elif [ ${r} = 1 ]; then brick="0010001000100010"; fi        
     fi
+    
+    echo "${brick}"    
 }
 
 function trim {
     echo $* | xargs
-}
-
-function rot_brick {    
-    current_r=$((current_r + 1))
-    
-    make_brick ${current_t} ${current_r}
-        
-    # if [ ${current_r} ] 
-    # declare -A test    
-    # #x ${#brick[*]}
-    # #y $((${#brick[0]} / 2 + 1 ))
-
-    # buff=()
-
-    # for x in ${!brick[*]}
-    # do
-    #     size=$((${#brick[x]} / 2 + 1 ))
-    #     ny=0
-    #     row=""
-    #     for y in ${brick[x]}
-    #     do 
-    #         # size=$((size - 1))
-    #         test[${ny},${x}]=${y}
-    #         row="${row}${y} "
-    #         ny=$((ny + 1))
-    #         # echo "${x} | ${size} -> ${y}"
-    #     done 
-    #     buff+=("$(trim ${row})")
-    #     # buff
-    #     # echo "x: ${x} -> ${brick[x]} -> ${size}"
-    #     # for x in ${!brick[*]}
-    # done
-    # # echo "buff:${!buff[*]} | ${buff[*]}"
-    # # echo "brick:${!brick[*]} | ${brick[*]}"
-    
-    # # echo "brick1 : ${!brick[*]}"
-    # # echo "brick1 : ${brick[*]}"
-
-    # brick=()
-    # for y in ${!buff[*]} 
-    # do
-    #     brick+=("${buff[$y]}")
-    # done
-    # # echo "brick2 : ${!brick[*]}"
-    # # echo "brick2 : ${brick[*]}"
-
-
-    # # echo "buff  : ${!buff[*]}"
-    # # echo "brick : ${!brick[*]}"
-    # # echo "brick1: ${!brick1[*]}"
-
-    # # echo "Idx: [ ${a[0]} ]| value: ${!a[*]}"
-    # # echo "Idx: ${#brick[0]} | $((${#brick[0]} / 2 + 1 )) | value: ${#brick[*]}"
-    # # brick=()
-    # # a="${test[0,0]} ${test[0,1]} ${test[0,2]}"
-    # # b="${test[1,0]} ${test[1,1]} ${test[1,2]}"
-    # # # brick=($a $b)
-    # # brick+=("$a")
-    # # brick+=("$b")
-    # # echo "test: $a"
-    # # echo "test: $b"
-    # # echo "test: ${brick[*]}"
-
-     
-    # # for x in ${!brick[*]}
-    # # do
-    # #     echo "x: ${x} -> ${brick[x]}"
-    # #     for y in ${brick[x]}
-    # #     do
-    # #         echo "x: ${y}"
-    # #     done
-    # # done
-
-    # # for x in ${brick}
-    # # do
-    # #     for y in $(range ${board_y})
-    # #     do
-    # #         if [ ${board[${x},${y}]} = 2 ]
-    # #         then
-    # #             board[${x},${y}]=$1
-    # #         fi
-    # #     done
-    # # done
-
-    move
 }
 
 function update_brick {
@@ -277,7 +138,7 @@ function update_brick {
 
 function update_rows {
     for x in $(range ${board_x}); do
-        sum=0
+        local sum=0
         for y in $(range ${board_y}); do
             if [ ${board[${x},${y}]} = 1 ]; then sum=$((sum + 1)); fi
         done
@@ -290,8 +151,8 @@ function update_rows {
 
 function delete_row {
     for i in $(range $(($1 - 1))); do
-        x_to=$(($1 - i))
-        x_from=$(($1 - i - 1))
+        local x_to=$(($1 - i))
+        local x_from=$(($1 - i - 1))
         for y in $(range ${board_y}); do
             board[${x_to},${y}]=${board[${x_from},${y}]}
         done
@@ -302,8 +163,24 @@ function delete_row {
     done    
 }
 
+function check_rot {
+    local ret=0
+    
+    # todo
+
+    echo "${ret}"
+}
+
+function rot_brick {    
+    if [ $(check_rot) = 1 ]; then
+        current_r=$((current_r + 1))    
+        current_brick=$(make_brick ${current_t} ${current_r})
+        move
+    fi    
+}
+
 function check_left {
-    ret=1
+    local ret=1
     for x in $(range ${board_x}); do
         for y in $(range ${board_y}); do
             if [ ${board[${x},${y}]} = 2 ]; then
@@ -319,7 +196,7 @@ function check_left {
 } 
 
 function check_right {
-    ret=1
+    local ret=1
     for x in $(range ${board_x}); do
         for y in $(range ${board_y}); do
             if [ ${board[${x},${y}]} = 2 ]; then
@@ -335,7 +212,7 @@ function check_right {
 }
 
 function check_down {
-    ret=1
+    local ret=1
     for y in $(range ${board_y}); do
         for x in $(range ${board_x}); do
             if [ ${board[${x},${y}]} = 2 ]; then
@@ -353,7 +230,7 @@ function check_down {
 function move_left {
     if [ $(check_left) = 1 ]; then
         current_y=$((current_y - 1));
-        move;
+        move
     fi    
 }
 
@@ -374,7 +251,7 @@ function move_down {
         current_r=0            
         current_t=${next_t}
         next_t=$(random)
-        make_brick ${current_t} ${current_r}
+        current_brick=$(make_brick ${current_t} ${current_r})
         current_x=$(offset_x ${current_t})
         current_y=$(offset_y ${current_t})
         move    
@@ -384,11 +261,13 @@ function move_down {
 function move {
     update_brick 0
 
-    pos_x=${current_x}
-    for x in ${!brick[*]}; do
-        pos_y=${current_y}
-        for y in ${brick[x]}; do
-            if [ ${y} = 1 ]; then
+    local pos_x=${current_x}
+    for x in $(range ${brick_x}); do
+        local pos_y=${current_y}
+        for y in $(range ${brick_y}); do
+            local idx=$(((brick_x + 1) * x + y))
+            local val=${current_brick:${idx}:1} 
+            if [ ${val} = 1 ]; then
                 if [ ${board[${pos_x},${pos_y}]} = 1 ]; then play=0; fi
                 board[${pos_x},${pos_y}]=2
             fi
@@ -479,7 +358,7 @@ function draw_next {
 
 function draw_board {
     for x in $(range ${board_x}); do
-        line="${border_left}"
+        local line="${border_left}"
         for y in $(range ${board_y}); do
             if [ ${board[${x},${y}]} = 1 ]; then line="${line}X"
             elif [ ${board[${x},${y}]} = 2 ]; then line="${line}${green}X${normal}"
@@ -496,7 +375,6 @@ function draw_points {
     printf "${border_left}${green} %8d ${normal}${border_right}\n" ${points}
     echo -e "${border_line}"
 }
-
 
 function draw {
     while [ ${play} = 1 ]; do
