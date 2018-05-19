@@ -26,6 +26,9 @@ function init {
     points=0
     play=1
 
+    board[5,5]=1
+
+
     # begin test
     board[19,0]=1
     board[19,1]=1
@@ -45,12 +48,10 @@ function init {
     board[18,7]=1
     board[18,8]=1
     board[18,9]=1
-
-
-    next_t=0
     # end test
+
     current_r=0
-    current_t=${next_t}
+    current_t=$(random)
     next_t=$(random)
     current_brick=$(make_brick ${current_t} ${current_r})
     current_x=$(offset_x ${current_t})
@@ -67,25 +68,21 @@ function range {
 }
 
 function offset_x {
-    local ret=0;
-    if [ $1 = 0 ]; then ret=-1
-    elif [ $1 = 1 ]; then ret=-1
-    elif [ $1 = 2 ]; then ret=-1
-    elif [ $1 = 3 ]; then ret=-1
-    elif [ $1 = 5 ]; then ret=-1
+    local ret=-1;
+    if   [ $1 = 4 ]; then ret=0
     elif [ $1 = 6 ]; then ret=-2; fi
     echo "${ret}"
 }
 
 function offset_y {
     local ret=4;
-    if [ $1 = 0 ]; then ret=3;
+    if   [ $1 = 0 ]; then ret=3;
     elif [ $1 = 6 ]; then ret=3; fi
     echo "${ret}"
 }
 
 function make_brick {
-    if [ $1 = 0 ]; then    
+    if   [ $1 = 0 ]; then    
         local brick="0000011001100000"
     elif [ $1 = 1 ]; then
         r=$(($2 % 4))
@@ -164,14 +161,41 @@ function delete_row {
 }
 
 function check_rot {
-    local ret=0
-    
-    # todo
+    local ret=1
+    local next_r=$((current_r + 1))
+    local next_brick=$(make_brick ${current_t} ${next_r})    
+
+    local pos_x=${current_x}
+    for x in $(range ${brick_x}); do
+        local x_ok="1"
+        if (( ${pos_x} < 0 )) || (( ${pos_x} > ${board_x} )); then
+            local x_ok="0"
+        fi
+        local pos_y=${current_y}        
+        for y in $(range ${brick_y}); do
+            local idx=$(((brick_x + 1) * x + y))
+            local val=${next_brick:${idx}:1} 
+            if [ ${x_ok} = 0 ] || (( ${pos_y} < 0 )) || (( ${pos_y} > ${board_y} )); then
+                if [ ${val} = 1 ]; then 
+                    ret=0   
+                    break
+                fi
+            fi
+
+            if [ ${val} = 1 ] && [ ${board[${pos_x},${pos_y}]} = 1 ]; then
+                ret=0   
+                break
+            fi
+            pos_y=$((pos_y + 1))
+        done
+        pos_x=$((pos_x + 1))
+    done
+
 
     echo "${ret}"
 }
 
-function rot_brick {    
+function rot_brick {
     if [ $(check_rot) = 1 ]; then
         current_r=$((current_r + 1))    
         current_brick=$(make_brick ${current_t} ${current_r})
